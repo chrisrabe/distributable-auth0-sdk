@@ -11,7 +11,14 @@ const fetchAccessToken = async (context: Context): Promise<string | undefined> =
 
 const handleSignIn: ActionHandler<SDKActions['signIn']> = (context) => async (args = {}) => {
   const {isSilent} = args;
+
+  if(window.location.search.includes('state=') && (window.location.search.includes('code=') || window.location.search.includes('error='))) {
+    await context.auth.handleRedirectCallback();
+    window.history.replaceState({}, document.title, '/');
+  }
+
   const accessToken = await fetchAccessToken(context);
+
   try {
     if (!accessToken && !isSilent) {
       await context.auth.loginWithRedirect();
